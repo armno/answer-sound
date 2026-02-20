@@ -4,16 +4,22 @@ let audioContext = null;
 // Initialize audio context on first user interaction
 function initAudio() {
     if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.error('Failed to create AudioContext:', e);
+            return false;
+        }
     }
     if (audioContext.state === 'suspended') {
         audioContext.resume();
     }
+    return true;
 }
 
 // Play correct sound - pleasant chime
 function playCorrectSound() {
-    initAudio();
+    if (!initAudio()) return;
     
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
@@ -52,7 +58,7 @@ function playCorrectSound() {
 
 // Play incorrect sound - lower buzz
 function playIncorrectSound() {
-    initAudio();
+    if (!initAudio()) return;
     
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
@@ -90,17 +96,28 @@ function playIncorrectSound() {
 }
 
 // Button click handlers
-document.getElementById('correctBtn').addEventListener('click', () => {
-    playCorrectSound();
-});
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('correctBtn').addEventListener('click', () => {
+        playCorrectSound()
+    })
 
-document.getElementById('incorrectBtn').addEventListener('click', () => {
-    playIncorrectSound();
-});
+    document.getElementById('incorrectBtn').addEventListener('click', () => {
+        playIncorrectSound()
+    })
+})
 
 // Prevent double-tap zoom on mobile
-document.addEventListener('touchstart', function(e) {
-    if (e.touches.length > 1) {
-        e.preventDefault();
+let lastTouchEnd = 0
+document.addEventListener('touchend', (e) => {
+    const now = Date.now()
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault()
     }
-}, { passive: false });
+    lastTouchEnd = now
+}, false)
+
+document.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) {
+        e.preventDefault()
+    }
+}, { passive: false })

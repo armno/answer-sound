@@ -1,8 +1,9 @@
-const CACHE_NAME = 'answer-sound-v1';
+const CACHE_NAME = 'answer-sound-v2';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/app.js'
+  '/app.js',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
@@ -43,8 +44,9 @@ self.addEventListener('fetch', event => {
         return fetch(event.request);
       })
       .catch(() => {
-        // Fallback for offline
-        return new Response('Offline - app not cached properly');
+        return new Response('<!DOCTYPE html><html><body><h1>Offline</h1><p>App not cached properly</p></body></html>', {
+          headers: { 'Content-Type': 'text/html' }
+        });
       })
   );
 });
