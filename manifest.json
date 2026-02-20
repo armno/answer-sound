@@ -1,0 +1,21 @@
+{
+  "name": "Answer Sound",
+  "short_name": "Answer",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#333333",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%2390EE90' width='192' height='192'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.35em' font-size='100' fill='%23333333'%3E%E2%9C%93%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%2390EE90' width='512' height='512'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.35em' font-size='280' fill='%23333333'%3E%E2%9C%93%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
