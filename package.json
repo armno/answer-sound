@@ -1,0 +1,7 @@
+{
+  "name": "answer-sound",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scripts/update-cache-version.js"
+  }
+}
