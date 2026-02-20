@@ -1,4 +1,4 @@
-const CACHE_NAME = 'answer-sound-v2';
+const CACHE_NAME = 'answer-sound-v3';
 const urlsToCache = [
   '/',
   '/index.html',

@@ -1,8 +1,9 @@
 // Audio context for generating sounds
 let audioContext = null;
+let audioContextReady = null;
 
 // Initialize audio context on first user interaction
-function initAudio() {
+async function initAudio() {
     if (!audioContext) {
         try {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -12,14 +13,21 @@ function initAudio() {
         }
     }
     if (audioContext.state === 'suspended') {
-        audioContext.resume();
+        await audioContext.resume();
     }
     return true;
 }
 
+function ensureAudioReady() {
+    if (!audioContextReady) {
+        audioContextReady = initAudio();
+    }
+    return audioContextReady;
+}
+
 // Play correct sound - pleasant chime
-function playCorrectSound() {
-    if (!initAudio()) return;
+async function playCorrectSound() {
+    if (!await ensureAudioReady()) return;
     
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
@@ -57,8 +65,8 @@ function playCorrectSound() {
 }
 
 // Play incorrect sound - lower buzz
-function playIncorrectSound() {
-    if (!initAudio()) return;
+async function playIncorrectSound() {
+    if (!await ensureAudioReady()) return;
     
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
