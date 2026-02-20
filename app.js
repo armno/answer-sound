@@ -25,9 +25,17 @@ function ensureAudioReady() {
     return audioContextReady;
 }
 
-// Play correct sound - pleasant chime
+// Play correct sound - bright friendly chime
 async function playCorrectSound() {
     if (!await ensureAudioReady()) return;
+    
+    // Play two notes with a delay
+    playNote(523.25, 659.25, 0, 0.4)      // C5 + E5
+    playNote(523.25, 659.25, 0.15, 0.4)   // C5 + E5 (repeated)
+}
+
+function playNote(freq1, freq2, delay, duration) {
+    const now = audioContext.currentTime + delay;
     
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
@@ -35,38 +43,44 @@ async function playCorrectSound() {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
-    // C5 note (523.25 Hz) - pleasant chime
-    oscillator.frequency.value = 523.25;
+    oscillator.frequency.value = freq1;
     oscillator.type = 'sine';
     
-    // Volume envelope
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.3, now + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
     
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.4);
+    oscillator.start(now);
+    oscillator.stop(now + duration);
     
-    // Add a harmonic for richness
+    // Harmonic
     const harmonic = audioContext.createOscillator();
     const harmonicGain = audioContext.createGain();
     
     harmonic.connect(harmonicGain);
     harmonicGain.connect(audioContext.destination);
     
-    harmonic.frequency.value = 1046.5; // C6
+    harmonic.frequency.value = freq2;
     harmonic.type = 'sine';
-    harmonicGain.gain.setValueAtTime(0, audioContext.currentTime);
-    harmonicGain.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
-    harmonicGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    harmonicGain.gain.setValueAtTime(0, now);
+    harmonicGain.gain.linearRampToValueAtTime(0.15, now + 0.02);
+    harmonicGain.gain.exponentialRampToValueAtTime(0.01, now + duration);
     
-    harmonic.start();
-    harmonic.stop(audioContext.currentTime + 0.3);
+    harmonic.start(now);
+    harmonic.stop(now + duration);
 }
 
-// Play incorrect sound - lower buzz
+// Play incorrect sound - softer but friendly tone
 async function playIncorrectSound() {
     if (!await ensureAudioReady()) return;
+    
+    // Play two notes with a delay
+    playNoteIncorrect(392, 493.88, 0, 0.3)      // G4 + B4
+    playNoteIncorrect(392, 493.88, 0.15, 0.3)  // G4 + B4 (repeated)
+}
+
+function playNoteIncorrect(freq1, freq2, delay, duration) {
+    const now = audioContext.currentTime + delay;
     
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
@@ -74,45 +88,72 @@ async function playIncorrectSound() {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
-    // G3 note (196 Hz) - lower buzz
-    oscillator.frequency.value = 196;
-    oscillator.type = 'sawtooth';
+    oscillator.frequency.value = freq1;
+    oscillator.type = 'triangle';
     
-    // Volume envelope
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.25, audioContext.currentTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.25, now + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
     
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.5);
+    oscillator.start(now);
+    oscillator.stop(now + duration);
     
-    // Add dissonance for "incorrect" feel
-    const dissonance = audioContext.createOscillator();
-    const dissonanceGain = audioContext.createGain();
+    // Harmonic
+    const harmonic = audioContext.createOscillator();
+    const harmonicGain = audioContext.createGain();
     
-    dissonance.connect(dissonanceGain);
-    dissonanceGain.connect(audioContext.destination);
+    harmonic.connect(harmonicGain);
+    harmonicGain.connect(audioContext.destination);
     
-    dissonance.frequency.value = 185; // F#3 - creates dissonance
-    dissonance.type = 'sawtooth';
-    dissonanceGain.gain.setValueAtTime(0, audioContext.currentTime);
-    dissonanceGain.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.02);
-    dissonanceGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    harmonic.frequency.value = freq2;
+    harmonic.type = 'triangle';
+    harmonicGain.gain.setValueAtTime(0, now);
+    harmonicGain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+    harmonicGain.gain.exponentialRampToValueAtTime(0.01, now + duration);
     
-    dissonance.start();
-    dissonance.stop(audioContext.currentTime + 0.5);
+    harmonic.start(now);
+    harmonic.stop(now + duration);
 }
 
 // Button click handlers
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('correctBtn').addEventListener('click', () => {
-        playCorrectSound()
+    const correctBtn = document.getElementById('correctBtn')
+    const incorrectBtn = document.getElementById('incorrectBtn')
+
+    correctBtn.addEventListener('pointerdown', () => {
+        correctBtn.classList.add('pressed')
     })
 
-    document.getElementById('incorrectBtn').addEventListener('click', () => {
+    correctBtn.addEventListener('pointerup', () => {
+        correctBtn.classList.remove('pressed')
+        playCorrectSound()
+        triggerHaptic(30)
+    })
+
+    correctBtn.addEventListener('pointerleave', () => {
+        correctBtn.classList.remove('pressed')
+    })
+
+    incorrectBtn.addEventListener('pointerdown', () => {
+        incorrectBtn.classList.add('pressed')
+    })
+
+    incorrectBtn.addEventListener('pointerup', () => {
+        incorrectBtn.classList.remove('pressed')
         playIncorrectSound()
+        triggerHaptic(50)
+    })
+
+    incorrectBtn.addEventListener('pointerleave', () => {
+        incorrectBtn.classList.remove('pressed')
     })
 })
+
+function triggerHaptic(duration) {
+    if (navigator.vibrate) {
+        navigator.vibrate(duration)
+    }
+}
 
 // Prevent double-tap zoom on mobile
 let lastTouchEnd = 0
